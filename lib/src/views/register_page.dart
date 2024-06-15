@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:taxiapp/src/bloc/auth_bloc.dart';
+import 'package:taxiapp/src/views/dialog/loading_dialog.dart';
+import 'package:taxiapp/src/views/dialog/msg_dialog.dart';
+import 'package:taxiapp/src/views/home_page.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -30,6 +33,36 @@ class _RegisterPageState extends State<RegisterPage> {
     });
   }
 
+  void onSignUpClick() {
+    var isValid = authBloc.isValid(_nameController.text, _phoneController.text,
+        _emailController.text, _passController.text);
+    if (isValid) {
+      //   create User
+      // loading dialog
+      LoadingDialog.showLoadingDialog(context, 'Loading ...');
+      authBloc.signUp(
+        _emailController.text,
+        _passController.text,
+        _phoneController.text,
+        _nameController.text,
+        () {
+          LoadingDialog.hideDialog(context);
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => HomePage(),
+            ),
+          );
+        },
+        (msg) {
+          // show msg dialog
+          LoadingDialog.hideDialog(context);
+          MsgDialog.showMsgDialog(context, 'Đăng ký thất bại', msg);
+        },
+      );
+    }
+  }
+
   // METHOD
 
   @override
@@ -47,7 +80,8 @@ class _RegisterPageState extends State<RegisterPage> {
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 Padding(
-                  padding: const EdgeInsets.only(left: 60, right: 60, bottom: 30),
+                  padding:
+                      const EdgeInsets.only(left: 60, right: 60, bottom: 30),
                   child: Image.asset('assets/images/car_red.jpg'),
                 ),
                 const Padding(
@@ -110,23 +144,24 @@ class _RegisterPageState extends State<RegisterPage> {
                 Padding(
                   padding: const EdgeInsets.only(top: 10, bottom: 10),
                   child: StreamBuilder(
-                    stream: authBloc.emailStream,
-                    builder: (context, snapshot) {
-                      return TextField(
-                        controller: _emailController,
-                        decoration: InputDecoration(
-                          errorText: snapshot.hasError ? snapshot.error.toString() : null,
-                          border: const OutlineInputBorder(),
-                          labelText: 'Email',
-                          labelStyle: const TextStyle(color: Colors.grey),
-                          prefixIcon: const Icon(
-                            Icons.email_outlined,
-                            color: Colors.grey,
+                      stream: authBloc.emailStream,
+                      builder: (context, snapshot) {
+                        return TextField(
+                          controller: _emailController,
+                          decoration: InputDecoration(
+                            errorText: snapshot.hasError
+                                ? snapshot.error.toString()
+                                : null,
+                            border: const OutlineInputBorder(),
+                            labelText: 'Email',
+                            labelStyle: const TextStyle(color: Colors.grey),
+                            prefixIcon: const Icon(
+                              Icons.email_outlined,
+                              color: Colors.grey,
+                            ),
                           ),
-                        ),
-                      );
-                    }
-                  ),
+                        );
+                      }),
                 ),
                 Padding(
                   padding: const EdgeInsets.only(top: 10, bottom: 10),
@@ -134,24 +169,25 @@ class _RegisterPageState extends State<RegisterPage> {
                     alignment: Alignment.centerRight,
                     children: [
                       StreamBuilder(
-                        stream: authBloc.passStream,
-                        builder: (context, snapshot) {
-                          return TextField(
-                            controller: _passController,
-                            obscureText: !_checkShowPass,
-                            decoration: InputDecoration(
-                              errorText: snapshot.hasError ? snapshot.error.toString() : null,
-                              border: const OutlineInputBorder(),
-                              labelText: 'Password',
-                              labelStyle: const TextStyle(color: Colors.grey),
-                              prefixIcon: const Icon(
-                                Icons.lock_outline,
-                                color: Colors.grey,
+                          stream: authBloc.passStream,
+                          builder: (context, snapshot) {
+                            return TextField(
+                              controller: _passController,
+                              obscureText: !_checkShowPass,
+                              decoration: InputDecoration(
+                                errorText: snapshot.hasError
+                                    ? snapshot.error.toString()
+                                    : null,
+                                border: const OutlineInputBorder(),
+                                labelText: 'Password',
+                                labelStyle: const TextStyle(color: Colors.grey),
+                                prefixIcon: const Icon(
+                                  Icons.lock_outline,
+                                  color: Colors.grey,
+                                ),
                               ),
-                            ),
-                          );
-                        }
-                      ),
+                            );
+                          }),
                       Padding(
                         padding: const EdgeInsets.only(right: 10),
                         child: InkWell(
@@ -175,8 +211,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   padding: const EdgeInsets.only(top: 10, bottom: 10),
                   child: ElevatedButton(
                     onPressed: () {
-                      Navigator.push(context,
-                          MaterialPageRoute(builder: (_) => const RegisterPage()));
+                      onSignUpClick();
                     },
                     style: ElevatedButton.styleFrom(
                       foregroundColor: Colors.white,
@@ -208,7 +243,9 @@ class _RegisterPageState extends State<RegisterPage> {
                               color: Colors.blue,
                               fontWeight: FontWeight.w700),
                         ),
-                        onTap: () {},
+                        onTap: () {
+                          Navigator.pop(context);
+                        },
                       ),
                     ],
                   ),

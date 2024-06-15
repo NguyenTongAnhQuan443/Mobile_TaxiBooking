@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:taxiapp/src/views/app.dart';
+import 'package:taxiapp/src/views/dialog/loading_dialog.dart';
+import 'package:taxiapp/src/views/dialog/msg_dialog.dart';
+import 'package:taxiapp/src/views/home_page.dart';
 import 'package:taxiapp/src/views/register_page.dart';
 
 class LoginPage extends StatefulWidget {
@@ -130,10 +134,18 @@ class _LoginPageState extends State<LoginPage> {
                   padding: const EdgeInsets.only(top: 10, bottom: 10),
                   child: ElevatedButton(
                     onPressed: () {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (_) => const RegisterPage()));
+                      String email = _emailController.text;
+                      String pass = _passController.text;
+                      var authBloc = MyApp.of(context)!.authBloc;
+                      LoadingDialog.showLoadingDialog(context, 'Loading ...');
+                      authBloc.signIn(email, pass, () {
+                        LoadingDialog.hideDialog(context);
+                        Navigator.of(context).push(MaterialPageRoute(
+                            builder: (context) => HomePage()));
+                      }, (msg) {
+                        LoadingDialog.hideDialog(context);
+                        MsgDialog.showMsgDialog(context, 'Đăng nhập', msg);
+                      });
                     },
                     style: ElevatedButton.styleFrom(
                       foregroundColor: Colors.white,
@@ -165,7 +177,9 @@ class _LoginPageState extends State<LoginPage> {
                               color: Colors.blue,
                               fontWeight: FontWeight.w700),
                         ),
-                        onTap: () {},
+                        onTap: () {
+                          Navigator.push(context, MaterialPageRoute(builder: (context) => RegisterPage()));
+                        },
                       ),
                     ],
                   ),

@@ -4,7 +4,7 @@ import 'package:taxiapp/src/bloc/auth_bloc.dart';
 class MyApp extends InheritedWidget {
   final AuthBloc authBloc;
   final Widget child;
-  MyApp(this.authBloc, this.child) : super(child: child);
+  const MyApp(this.authBloc, this.child, {super.key}) : super(child: child);
 
   @override
   bool updateShouldNotify(InheritedWidget oldWidget) {
